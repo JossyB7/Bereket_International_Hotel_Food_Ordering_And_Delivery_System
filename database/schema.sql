@@ -75,18 +75,16 @@ CREATE TABLE IF NOT EXISTS admin_users (
 
 
 INSERT INTO menu_items (name, description, price, category, image, stock) VALUES
-(' Doro Wat', 'Spicy chicken stew with injera', 250.00, 'main-course',url("../asset/image/doro.jpg"), 50),
-('Tibs', 'Sautéed beef with vegetables', 280.00, 'main-course',url("../asset/image/tibs.jpg"), 50),
-('Kitfo', 'Minced raw beef with spices', 300.00, 'main-course', url("../asset/image/kitfo.jpg"), 30),
-('Shiro', 'Chickpea stew with injera', 180.00, 'main-course', url("../asset/image/shero.jpg"), 50),
-('Firfir', 'Shredded injera with sauce', 150.00, 'main-course', url("../asset/image/firfir.jpg"), 50),
-('Vegetable Samosa', 'Crispy pastry with vegetables', 50.00, 'appetizers', url("../asset/image/samosa.jpg"), 100),
-('Ethiopian Salad', 'Fresh mixed vegetables', 120.00, 'appetizers', url("../asset/image/salad.jpg"), 50),
-('Baklava', 'Sweet pastry with honey', 100.00, 'desserts', url("../asset/image/baklava.jpg"), 50),
-('Tiramisu', 'Italian coffee dessert', 150.00, 'desserts', url("../asset/image/tiramisu.jpg"), 30),
-('Ethiopian Coffee', 'Traditional coffee ceremony', 80.00, 'beverages', url("../asset/image/coffee.jpg"), 100),
-('Fresh Juice', 'Seasonal fruit juice', 60.00, 'beverages', url("../asset/image/fresh.jpg"), 100),
-('Tej', 'Honey wine', 200.00, 'beverages', url("../asset/image/tej.jpg"), 50);
+(' Doro Wat', 'Spicy chicken stew with injera', 285.00, 'main-course', 'asset/image/doro.jpg', 50),
+('Tibs', 'Sautéed beef with vegetables', 320.00, 'main-course', 'asset/image/tibs.jpg', 50),
+('Kitfo', 'Minced raw beef with spices', 340.00, 'main-course', 'asset/image/kitfo.jpg', 30),
+('Shiro', 'Chickpea stew with injera', 205.00, 'main-course', 'asset/image/shero.jpg', 50),
+('Firfir', 'Shredded injera with sauce', 170.00, 'main-course', 'asset/image/firfir.jpg', 50),
+('Vegetable Samosa', 'Crispy pastry with vegetables', 58.00, 'appetizers', 'asset/image/samosa.jpg', 100),
+('Ethiopian Salad', 'Fresh mixed vegetables', 138.00, 'appetizers', 'asset/image/salad.jpg', 50),
+('Baklava', 'Sweet pastry with honey', 115.00, 'desserts', 'asset/image/baklava.jpg', 50),
+('Tiramisu', 'Italian coffee dessert', 170.00, 'desserts', 'asset/image/tiramisu.jpg', 30),
+('Fresh Juice', 'Seasonal fruit juice', 70.00, 'beverages', 'asset/image/fresh.jpg', 100);
 
 
 CREATE TABLE IF NOT EXISTS customers (

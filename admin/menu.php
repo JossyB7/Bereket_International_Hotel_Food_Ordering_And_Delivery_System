@@ -51,8 +51,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($upload['error']) { $error = $upload['error']; } 
         else {
             $imagePath = !empty($upload['path']) ? $upload['path'] : $image;
-            $stmt = $conn->prepare("INSERT INTO menu_items (name, description, price, category, stock, image) VALUES (?, ?, ?, ?, ?, ?)");
-            $stmt->bind_param("ssdsis", $name, $description, $price, $category, $stock, $imagePath);
+            // Normalize image path - remove ../ prefix if present for consistency
+            if (strpos($imagePath, '../') === 0) {
+                $imagePath = substr($imagePath, 3);
+            }
+            // Default status to 'active' for new items
+            $status = 'active';
+            $stmt = $conn->prepare("INSERT INTO menu_items (name, description, price, category, stock, image, status) VALUES (?, ?, ?, ?, ?, ?, ?)");
+            $stmt->bind_param("ssdsiss", $name, $description, $price, $category, $stock, $imagePath, $status);
             $stmt->execute();
             header('Location: menu.php?success=1'); exit;
         }
@@ -181,9 +187,20 @@ if ($result) {
                             <td><?php echo ucfirst($item['category']); ?></td>
                             <td><?php echo $item['stock']; ?></td>
                             <td>
-                                <?php if(strpos($item['image'], 'uploads') === 0): ?>
-                                    <img src="../<?php echo $item['image']; ?>" width="40">
-                                <?php else: echo $item['image']; endif; ?>
+                                <?php 
+                                $imagePath = $item['image'];
+                                if(strpos($imagePath, 'uploads') === 0): 
+                                    // Uploaded image - needs ../ prefix
+                                    echo '<img src="../' . htmlspecialchars($imagePath) . '" width="40" alt="' . htmlspecialchars($item['name']) . '">';
+                                elseif(strpos($imagePath, 'asset/') === 0 || strpos($imagePath, '../asset/') === 0): 
+                                    // Asset folder image - use as is or with ../ prefix
+                                    $displayPath = (strpos($imagePath, '../') === 0) ? $imagePath : '../' . $imagePath;
+                                    echo '<img src="' . htmlspecialchars($displayPath) . '" width="40" alt="' . htmlspecialchars($item['name']) . '">';
+                                else: 
+                                    // Other cases (emoji, URL, etc.)
+                                    echo htmlspecialchars($imagePath); 
+                                endif; 
+                                ?>
                             </td>
                             <td>
                                 <button onclick='editItem(<?php echo json_encode($item); ?>)'>Edit</button>
@@ -218,6 +235,7 @@ if ($result) {
                     <select id="category" name="category" required>
                         <option value="appetizers">Appetizers</option>
                         <option value="main-course">Main Course</option>
+                        <option value="desserts">Desserts</option>
                         <option value="beverages">Beverages</option>
                     </select>
                 </div>

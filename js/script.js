@@ -29,7 +29,6 @@ function cleanCart(saveAfterClean = false) {
       !isNaN(parseInt(item.quantity)) &&
       parseInt(item.quantity) > 0;
 
-
     return hasId && hasName && hasPrice && hasQuantity;
   });
 
@@ -46,12 +45,14 @@ function cleanCart(saveAfterClean = false) {
   }
 }
 cleanCart(true);
-const menuItems = [
+
+// Built-in fallback menu (used only if server fetch fails)
+const defaultMenuItems = [
   {
     id: 1,
     name: " Doro Wat",
     description: "Spicy chicken stew with injera",
-    price: 250,
+    price: 285,
     category: "main-course",
     image: "asset/image/doro.jpg",
   },
@@ -59,7 +60,7 @@ const menuItems = [
     id: 2,
     name: "Tibs",
     description: "Sautéed beef with vegetables",
-    price: 280,
+    price: 320,
     category: "main-course",
     image: "asset/image/tibs.jpg",
   },
@@ -67,7 +68,7 @@ const menuItems = [
     id: 3,
     name: "Kitfo",
     description: "Minced raw beef with spices",
-    price: 300,
+    price: 340,
     category: "main-course",
     image: "asset/image/kitfo.jpg",
   },
@@ -75,7 +76,7 @@ const menuItems = [
     id: 4,
     name: "Shiro",
     description: "Chickpea stew with injera",
-    price: 180,
+    price: 205,
     category: "main-course",
     image: "asset/image/shero.jpg",
   },
@@ -83,7 +84,7 @@ const menuItems = [
     id: 5,
     name: "Firfir",
     description: "Shredded injera with sauce",
-    price: 150,
+    price: 170,
     category: "main-course",
     image: "asset/image/firfir.jpg",
   },
@@ -91,7 +92,7 @@ const menuItems = [
     id: 6,
     name: "Vegetable Samosa",
     description: "Crispy pastry with vegetables",
-    price: 50,
+    price: 58,
     category: "appetizers",
     image: "asset/image/samosa.jpg",
   },
@@ -99,7 +100,7 @@ const menuItems = [
     id: 7,
     name: "Ethiopian Salad",
     description: "Fresh mixed vegetables",
-    price: 120,
+    price: 138,
     category: "appetizers",
     image: "asset/image/salad.jpg",
   },
@@ -107,7 +108,7 @@ const menuItems = [
     id: 8,
     name: "Baklava",
     description: "Sweet pastry with honey",
-    price: 100,
+    price: 115,
     category: "desserts",
     image: "asset/image/baklava.jpg",
   },
@@ -115,37 +116,60 @@ const menuItems = [
     id: 9,
     name: "Tiramisu",
     description: "Italian coffee dessert",
-    price: 150,
+    price: 170,
     category: "desserts",
     image: "asset/image/tiramisu.jpg",
-  },
-  {
-    id: 10,
-    name: "Ethiopian Coffee",
-    description: "Traditional coffee ceremony",
-    price: 80,
-    category: "beverages",
-    image: "asset/image/coffee.jpg",
   },
   {
     id: 11,
     name: "Fresh Juice",
     description: "Seasonal fruit juice",
-    price: 60,
+    price: 70,
     category: "beverages",
     image: "asset/image/fresh.jpg",
   },
-  {
-    id: 12,
-    name: "Tej",
-    description: "Honey wine",
-    price: 200,
-    category: "beverages",
-    image: "asset/image/tej.jpg",
-  },
 ];
 
-document.addEventListener("DOMContentLoaded", function () {
+let menuItems = defaultMenuItems.slice();
+
+async function fetchMenuFromServer() {
+  try {
+    const res = await fetch('php/get_menu.php');
+    if (!res.ok) throw new Error('Network response was not ok');
+    const data = await res.json();
+    if (Array.isArray(data)) {
+      menuItems = data.map((item) => {
+        // Normalize image path - ensure it's a valid path
+        let imagePath = item.image || 'asset/image/default.jpg';
+        // Remove any leading ../ if present (customer pages are at root)
+        if (imagePath.startsWith('../')) {
+          imagePath = imagePath.substring(3);
+        }
+        // Ensure asset and uploads paths are correct
+        if (!imagePath.startsWith('asset/') && !imagePath.startsWith('uploads/') && !imagePath.startsWith('http')) {
+          // If it's just a filename or emoji, use default
+          if (imagePath.length < 10 && !imagePath.includes('.')) {
+            imagePath = 'asset/image/default.jpg';
+          }
+        }
+        return {
+          id: parseInt(item.id, 10),
+          name: item.name,
+          description: item.description,
+          price: parseFloat(item.price) || 0,
+          category: item.category || 'uncategorized',
+          image: imagePath,
+        };
+      });
+    }
+  } catch (err) {
+    console.warn('Fetching menu failed, using fallback menu:', err);
+    // keep using defaultMenuItems which are already in `menuItems`
+  }
+}
+
+document.addEventListener("DOMContentLoaded", async function () {
+  await fetchMenuFromServer();
   cleanCart();
   updateCartCount();
   const hamburger = document.querySelector(".hamburger");

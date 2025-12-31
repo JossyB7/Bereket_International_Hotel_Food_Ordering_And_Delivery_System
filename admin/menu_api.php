@@ -38,12 +38,14 @@ try{
         $upload = saveUploadedImage('image_file');
         if ($upload['error']) respond(['success'=>false,'error'=>$upload['error']],400);
         $image = $upload['path'] ?: $imageManual;
-        $stmt = $conn->prepare("INSERT INTO menu_items (name, description, price, category, stock, image) VALUES (?, ?, ?, ?, ?, ?)");
-        $stmt->bind_param('ssdsis', $name, $description, $price, $category, $stock, $image);
+        // Default status to 'active' for new items
+        $status = 'active';
+        $stmt = $conn->prepare("INSERT INTO menu_items (name, description, price, category, stock, image, status) VALUES (?, ?, ?, ?, ?, ?, ?)");
+        $stmt->bind_param('ssdsiss', $name, $description, $price, $category, $stock, $image, $status);
         $ok = $stmt->execute();
         $id = $stmt->insert_id;
         $stmt->close();
-        respond(['success'=> (bool)$ok, 'action'=>'added', 'id'=>$id, 'row' => ['id'=>$id,'name'=>$name,'price'=>$price,'category'=>$category,'stock'=>$stock,'image'=>$image]]);
+        respond(['success'=> (bool)$ok, 'action'=>'added', 'id'=>$id, 'row' => ['id'=>$id,'name'=>$name,'price'=>$price,'category'=>$category,'stock'=>$stock,'image'=>$image,'status'=>$status]]);
     }
 
     if ($action === 'update'){
